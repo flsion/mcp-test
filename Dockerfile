@@ -11,14 +11,8 @@ COPY package.json package-lock.json ./
 # Install project dependencies
 RUN npm install
 
-# Install project dependencies
-RUN npm install -g typescript
-
 # Copy the entire project directory
 COPY . .
-
-# Build the project
-RUN npm run build
 
 # Start a new stage for the final image
 FROM node:18-alpine AS release

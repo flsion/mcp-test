@@ -9,5 +9,4 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
-/dist
-.idea
+.idea/*
