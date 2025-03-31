@@ -4,7 +4,7 @@ import {Tool, ListToolsRequestSchema, CallToolRequestSchema} from '@modelcontext
 
 // Create an MCP server
 const server = new Server({
-    name: "Demo",
+    name: "MCP Test",
     version: "1.0.0"
 }, {
     capabilities: {
@@ -41,20 +41,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const {name, arguments: args} = request.params;
     if (name === 'add') {
         if (!args) {
-            throw new Error(`args is required`);
+            return {
+                content: [{type: "text", text: 'Error'}],
+                isError: true
+            }
         }
         const {a, b} = args as any;
         return {
-            content: [{type: "text", text: String(a + b)}],
+            content: [{type: "text", text: `Add Success: ${a + b}`}],
             isError: false
         }
     }
     return {
-        content: [{type: "text", text: 'Error'}],
+        content: [{type: "text", text: 'Unknown'}],
         isError: true
     }
 })
 
 // Start receiving messages on stdin and sending messages on stdout
-const transport = new StdioServerTransport();
-await server.connect(transport);
+async function main() {
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error("Knowledge Graph MCP Server running on stdio");
+}
+
+main().catch((error) => {
+    console.error("Fatal error in main():", error);
+    process.exit(1);
+});
