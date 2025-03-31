@@ -12,7 +12,7 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 # Copy the entire project directory
-COPY . .
+COPY . ./
 
 # Start a new stage for the final image
 FROM node:18-alpine AS release
