@@ -1,22 +1,55 @@
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 // Create an MCP server
-const server = new McpServer({
+const server = new Server({
     name: "Demo",
     version: "1.0.0"
+}, {
+    capabilities: {
+        tools: {},
+    }
 });
-// Add an addition tool
-server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => ({
-    content: [{ type: "text", text: String(a + b) }]
-}));
-// Add a dynamic greeting resource
-server.resource("greeting", new ResourceTemplate("greeting://{name}", { list: undefined }), async (uri, { name }) => ({
-    contents: [{
-            uri: uri.href,
-            text: `Hello, ${name}!`
-        }]
-}));
+const ADD = {
+    name: 'add',
+    description: 'add number',
+    inputSchema: {
+        type: 'object',
+        properties: {
+            a: {
+                type: "number",
+                description: 'number a'
+            },
+            b: {
+                type: "number",
+                description: 'number b'
+            }
+        },
+        required: ["a", "b"]
+    }
+};
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+    return {
+        tools: [ADD]
+    };
+});
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
+    if (name === 'add') {
+        if (!args) {
+            throw new Error(`args is required`);
+        }
+        const { a, b } = args;
+        return {
+            content: [{ type: "text", text: String(a + b) }],
+            isError: false
+        };
+    }
+    return {
+        content: [{ type: "text", text: 'Error' }],
+        isError: true
+    };
+});
 // Start receiving messages on stdin and sending messages on stdout
 const transport = new StdioServerTransport();
 await server.connect(transport);
