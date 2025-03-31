@@ -11,6 +11,9 @@ COPY package.json package-lock.json ./
 # Install project dependencies
 RUN npm install
 
+# Install project dependencies
+RUN npm install -g typescript
+
 # Copy the entire project directory
 COPY . .
 
