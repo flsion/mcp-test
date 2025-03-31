@@ -24,5 +24,7 @@ WORKDIR /app
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/package.json /app/package-lock.json /app/node_modules /app/
 
+RUN npm install
+
 # Set the entry point to run the server
 ENTRYPOINT ["node", "dist/index.js"]
